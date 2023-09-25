@@ -155,7 +155,7 @@ plt.title(plot_title)
 plt.show()
 
 
-export_file_path = 'E:\\demo\\microstrip_demo.txt'
+export_file_path = 'C:\\demo\\microstrip_demo.txt'
 CstExportTouchstone(mws, export_file_path)
 
 cst.Quit()

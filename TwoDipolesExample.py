@@ -179,7 +179,7 @@ CstDefineTimedomainSolver(mws, -30)
 
 frequencies_list, [y_real, y_imag], y_list, [x_label, y_label, plot_title] = CstResultParameters(mws, parent_path=r'1D Results\S-Parameters', run_id=0, result_id=0)
 
-export_file_path = 'E:\\demo\\two_dipoles_demo.txt'
+export_file_path = r'C:\Users\Feynman\Documents\Demo\two_dipoles_demo.txt'
 CstExportTouchstone(mws, export_file_path)
 
 cst.Quit()
