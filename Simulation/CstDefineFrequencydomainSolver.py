@@ -70,7 +70,7 @@ def CstDefineFrequencydomainSolver(mws, startFreq, endFreq, samples):
     fdSolver.SweepWeightEvanescent('1.0')
     fdSolver.AccuracyROM('1e-4')
     fdSolver.AddSampleInterval('', '', '1', 'Automatic', 'True')
-    fdSolver.AddSampleInterval(str(startFreq), str(endFreq), str(samples), 'Automatic', 'False')
+    fdSolver.AddSampleInterval(str(startFreq), str(endFreq), samples, 'Automatic', 'False')
     fdSolver.MPIParallelization('False')
     fdSolver.UseDistributedComputing('False')
     fdSolver.NetworkComputingStrategy('RunRemote')

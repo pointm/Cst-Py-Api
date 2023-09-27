@@ -15,6 +15,7 @@ from Modeling.CstPickFace import *
 from Simulation.CstDefineFrequencyRange import *
 from Simulation.CstDefineOpenBoundary import *
 from Simulation.CstWaveguidePort import *
+from Simulation.CstDefineFrequencydomainSolver import *
 from Simulation.CstDefineHfieldMonitor import *
 from Simulation.CstDefineEfieldMonitor import *
 from Simulation.CstDefineFarfieldMonitor import *
@@ -22,8 +23,44 @@ from Simulation.CstDefineTimedomainSolver import *
 from PostProcessing.CstResultParameters import *
 from PostProcessing.CstExportTouchstone import *
 
-# cst = win32com.client.Dispatch("CSTStudio.Application")
-# mws = cst.NewMWS()
+
+def WaveGuidePort(
+    mws,
+    PortNumber,
+    Xrange,
+    Yrange,
+    Zrange,
+    XrangeAdd,
+    YrangeAdd,
+    ZrangeAdd,
+    Coordinates,
+    Orientation,
+):
+    port = mws.Port
+    port.Reset()
+    port.PortNumber(str(PortNumber))
+    port.Label("")
+    port.Folder("")
+    port.NumberOfModes("1")
+    port.AdjustPolarization("False")
+    port.PolarizationAngle("0.0")
+    port.ReferencePlaneDistance("0")
+    port.TextSize("50")
+    port.TextMaxLimit("0")
+    port.Coordinates(Coordinates)
+    port.Orientation(Orientation)
+    port.PortOnBound("False")
+    port.ClipPickedPortToBound("False")
+    port.Xrange(str(Xrange[0]), str(Xrange[1]))
+    port.Yrange(str(Yrange[0]), str(Yrange[1]))
+    port.Zrange(str(Zrange[0]), str(Zrange[1]))
+    port.XrangeAdd(str(XrangeAdd[0]), str(XrangeAdd[1]))
+    port.YrangeAdd(str(YrangeAdd[0]), str(YrangeAdd[1]))
+    port.ZrangeAdd(str(ZrangeAdd[0]), str(ZrangeAdd[1]))
+    port.SingleEnded("False")
+    port.WaveguideMonitor("False")
+    port.Create()
+
 
 cst = win32com.client.dynamic.Dispatch("CSTStudio.Application")
 cst.SetQuietMode(True)
@@ -54,9 +91,8 @@ ZmaxSpace = 0
 CstDefineBackroundMaterial(
     mws, XminSpace, XmaxSpace, YminSpace, YmaxSpace, ZminSpace, ZmaxSpace
 )
-
-# CstCopperAnnealedLossy(mws)
-# CstFR4lossy(mws)
+background = mws.Background
+background.Type("PEC")
 
 W = 28.45
 L = 28.45
@@ -70,10 +106,10 @@ Hs = 1.6
 
 a = 20
 b = 10
-l = 0.5 * a
+l = 0.8 * a
 
 Name = "WaveGuide"
-component = "component1"
+component = "component2"
 # material = 'Copper (annealed)'
 material = "Vacuum"
 Xrange = [-0.5 * a, 0.5 * a]
@@ -81,57 +117,16 @@ Yrange = [-0.5 * b, 0.5 * b]
 Zrange = [-0.5 * l, 0.5 * l]
 Cstbrick(mws, Name, component, material, Xrange, Yrange, Zrange)
 
-# Name = "Substrate"
-# component = "component1"
-# material = "FR-4 (lossy)"
-# Xrange = [-0.5 * Wg, 0.5 * Wg]
-# Yrange = [-0.5 * Lg, 0.5 * Lg]
-# Zrange = [Ht, Ht + Hs]
-# Cstbrick(mws, Name, component, material, Xrange, Yrange, Zrange)
-
-# Name = "Patch"
-# component = "component1"
-# material = "Copper (annealed)"
-# Xrange = [-W / 2, W / 2]
-# Yrange = [-L / 2, L / 2]
-# Zrange = [Ht + Hs, Ht + Hs + Ht]
-# Cstbrick(mws, Name, component, material, Xrange, Yrange, Zrange)
-
-# Name = "Empty space"
-# component = "component1"
-# material = "Copper (annealed)"
-# Xrange = [-((Wf / 2) + Gpf), ((Wf / 2) + Gpf)]
-# Yrange = [-L / 2 + Fi, -L / 2]
-# Zrange = [Ht + Hs, Ht + Hs + Ht]
-# Cstbrick(mws, Name, component, material, Xrange, Yrange, Zrange)
-
-component1 = "component1:Patch"
-component2 = "component1:Empty space"
-CstSubtract(mws, component1, component2)
-
-Name = "FeedLine"
-component = "component1"
-material = "Copper (annealed)"
-Xrange = [-Wf / 2, Wf / 2]
-Yrange = [-L / 2 + Fi, -Lg / 2]
-Zrange = [Ht + Hs, Ht + Hs + Ht]
-Cstbrick(mws, Name, component, material, Xrange, Yrange, Zrange)
-
-component1 = "component1:Patch"
-component2 = "component1:FeedLine"
-CstAdd(mws, component1, component2)
-
-Name = "Substrate"
-id = 3
-CstPickFace(mws, Name, id)
+Name = "WaveGuide"
+CstPickFace(mws, Name, component, id=1)
 
 PortNumber = 1
-Xrange = [-36, 36]
-Yrange = [-36, -36]
-Zrange = [0.035, 1.635]
-XrangeAdd = [3 * Wf, 3 * Wf]
+Xrange = [-0.5 * a, 0.5 * a]
+Yrange = [-0.5 * b, 0.5 * b]
+Zrange = [-0.5 * l, -0.5 * l]
+XrangeAdd = [0, 0]
 YrangeAdd = [0, 0]
-ZrangeAdd = [Ht + Hs, 4 * Hs]
+ZrangeAdd = [0, 0]
 Coordinates = "Picks"
 Orientation = "positive"
 CstWaveguidePort(
@@ -147,40 +142,42 @@ CstWaveguidePort(
     Orientation,
 )
 
-CstDefineEfieldMonitor(mws, ("e-field" + "2.45"), 2.45)
-CstDefineHfieldMonitor(mws, ("h-field" + "2.45"), 2.45)
-CstDefineFarfieldMonitor(mws, ("farfield" + "2.45"), 2.45)
 
-CstSaveAsProject(mws, "E:\\demo\\demo_result\\MicrostripAntenna")
+Name = "WaveGuide"
+CstPickFace(mws, Name, component, id=2)
 
-CstDefineTimedomainSolver(mws, -40)
-
-(
-    frequencies_list,
-    [y_real, y_imag],
-    y_list,
-    [x_label, y_label, plot_title],
-) = CstResultParameters(
-    mws, parent_path=r"1D Results\S-Parameters", run_id=0, result_id=0
+PortNumber = 2
+Xrange = [-0.5 * a, 0.5 * a]
+Yrange = [-0.5 * b, 0.5 * b]
+Zrange = [0.5 * l, 0.5 * l]
+XrangeAdd = [0, 0]
+YrangeAdd = [0, 0]
+ZrangeAdd = [0, 0]
+Coordinates = "Picks"
+Orientation = "positive"
+WaveGuidePort(
+    mws,
+    PortNumber,
+    Xrange,
+    Yrange,
+    Zrange,
+    XrangeAdd,
+    YrangeAdd,
+    ZrangeAdd,
+    Coordinates,
+    Orientation,
 )
-
-plt.figure(dpi=300)
-plt.plot(frequencies_list, y_real)
-plt.plot(frequencies_list, y_imag)
-plt.xlabel(x_label)
-plt.ylabel(y_label)
-plt.title(plot_title)
-plt.show()
-
-plt.figure(dpi=300)
-plt.plot(frequencies_list, y_list)
-plt.xlabel(x_label)
-plt.ylabel(y_label)
-plt.title(plot_title)
-plt.show()
+CstDefineEfieldMonitor(mws, ("e-field" + "10"),10)
+CstDefineHfieldMonitor(mws, ("h-field" + "10"), 10)
 
 
-export_file_path = "C:\\demo\\microstrip_demo.txt"
-CstExportTouchstone(mws, export_file_path)
+CstSaveAsProject(mws, "C:\\demo\\demo_result\\MicrostripAntenna")
 
-cst.Quit()
+
+CstDefineFrequencydomainSolver(mws, 5, 12, samples = '')
+
+
+# export_file_path = "C:\\demo\\microstrip_demo.txt"
+# CstExportTouchstone(mws, export_file_path)
+
+# cst.Quit()
