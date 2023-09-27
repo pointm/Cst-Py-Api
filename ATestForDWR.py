@@ -62,14 +62,18 @@ def WaveGuidePort(
     port.Create()
 
 
+f_min = 5
+f_max = 12
+
 cst = win32com.client.dynamic.Dispatch("CSTStudio.Application")
 cst.SetQuietMode(True)
 new_mws = cst.NewMWS()
+# new_mws = cst.OpenFile(r"C:\Users\PointM2001\Documents\Demo\RWtest.cst")
 mws = cst.Active3D()
 
 CstDefaultUnits(mws)
 
-CstDefineFrequencyRange(mws, 5, 12)
+CstDefineFrequencyRange(mws, f_min, f_max)
 
 CstMeshInitiator(mws)
 
@@ -96,18 +100,45 @@ background.Type("PEC")  # 设置背景为PEC
 
 a = 20
 b = 10
-l = 0.8 * a
+d = 5
+s = 4
+l = 0.6 * a
 
-Name = "WaveGuide"
-component = "component2"
+
+Name = "DRWWaveGuide"
+component = "WaveGuide"
 material = "Vacuum"
 Xrange = [-0.5 * a, 0.5 * a]
 Yrange = [-0.5 * b, 0.5 * b]
 Zrange = [-0.5 * l, 0.5 * l]
 Cstbrick(mws, Name, component, material, Xrange, Yrange, Zrange)
 
-Name = "WaveGuide"
-CstPickFace(mws, Name, component, id=1)
+Name = "CutOffSpace"
+component = "WaveGuide"
+material = "Vacuum"
+Xrange = [-0.5 * s, 0.5 * s]
+Yrange = [0.5 * d, 0.5 * b]
+Zrange = [-0.5 * l, 0.5 * l]
+Cstbrick(mws, Name, component, material, Xrange, Yrange, Zrange)
+
+Name = "CutOffSpace2"
+component = "WaveGuide"
+material = "Vacuum"
+Xrange = [-0.5 * s, 0.5 * s]
+Yrange = [-0.5 * b, -0.5 * d]
+Zrange = [-0.5 * l, 0.5 * l]
+Cstbrick(mws, Name, component, material, Xrange, Yrange, Zrange)
+
+component1 = "WaveGuide:DRWWaveGuide"
+component2 = "WaveGuide:CutOffSpace"  # component:Name的格式，不要写反了
+CstSubtract(mws, component1, component2)
+
+component1 = "WaveGuide:DRWWaveGuide"
+component2 = "WaveGuide:CutOffSpace2"
+CstSubtract(mws, component1, component2)
+
+Name = "DRWWaveGuide"
+CstPickFace(mws, Name, component, id=21)
 
 PortNumber = 1
 Xrange = [-0.5 * a, 0.5 * a]
@@ -131,9 +162,8 @@ CstWaveguidePort(
     Orientation,
 )
 
-
-Name = "WaveGuide"
-CstPickFace(mws, Name, component, id=2)
+Name = "DRWWaveGuide"
+CstPickFace(mws, Name, component, id=14)
 
 PortNumber = 2
 Xrange = [-0.5 * a, 0.5 * a]
@@ -156,17 +186,42 @@ WaveGuidePort(
     Coordinates,
     Orientation,
 )
-CstDefineEfieldMonitor(mws, ("e-field" + "10"), 10)
-CstDefineHfieldMonitor(mws, ("h-field" + "10"), 10)
+# CstDefineEfieldMonitor(mws, ("e-field" + "10"), 10)
+# CstDefineHfieldMonitor(mws, ("h-field" + "10"), 10)
 
 
-CstSaveAsProject(mws, "C:\\Users\\PointM2001\\Documents\\demo\\demo_result\\MicrostripAntenna")
+# # CstSaveAsProject(mws, "RW")
 
 
-CstDefineFrequencydomainSolver(mws, 5, 12, "")
+CstDefineFrequencydomainSolver(mws, f_min, f_max, "")
+
+(
+    frequencies_list,
+    [y_real, y_imag],
+    y_list,
+    [x_label, y_label, plot_title],
+) = CstResultParameters(
+    mws, parent_path=r"1D Results\S-Parameters", run_id=0, result_id=0
+)
+
+plt.figure(dpi=200)
+plt.plot(frequencies_list, y_real)
+plt.plot(frequencies_list, y_imag)
+plt.xlabel(x_label)
+plt.ylabel(y_label)
+plt.title(plot_title)
+plt.show()
+
+plt.figure(dpi=200)
+plt.plot(frequencies_list, y_list)
+plt.xlabel(x_label)
+plt.ylabel(y_label)
+plt.title(plot_title)
+plt.show()
 
 
-# export_file_path = "C:\\demo\\microstrip_demo.txt"
-# CstExportTouchstone(mws, export_file_path)
+export_file_path = "C:\\Users\\PointM2001\\Documents\\demo\\DRW.txt"
+CstExportTouchstone(mws, export_file_path)
 
-cst.Quit()
+
+# cst.Quit()

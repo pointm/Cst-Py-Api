@@ -116,7 +116,7 @@ CstAdd(mws, component1, component2)
 
 Name = 'Substrate'
 id = 3
-CstPickFace(mws, Name, id)
+CstPickFace(mws, Name,component, id)
 
 PortNumber = 1
 Xrange = [-36, 36]
@@ -158,4 +158,4 @@ plt.show()
 export_file_path = 'C:\\demo\\microstrip_demo.txt'
 CstExportTouchstone(mws, export_file_path)
 
-cst.Quit()
+# cst.Quit()
