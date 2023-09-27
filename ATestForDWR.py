@@ -98,6 +98,9 @@ CstDefineBackroundMaterial(
 background = mws.Background
 background.Type("PEC")  # 设置背景为PEC
 
+project = mws.Project
+
+
 a = 20
 b = 10
 d = 5
@@ -190,38 +193,38 @@ WaveGuidePort(
 # CstDefineHfieldMonitor(mws, ("h-field" + "10"), 10)
 
 
-# # CstSaveAsProject(mws, "RW")
+CstSaveAsProject(mws, "RW")
 
 
-CstDefineFrequencydomainSolver(mws, f_min, f_max, "")
+# CstDefineFrequencydomainSolver(mws, f_min, f_max, "")
 
-(
-    frequencies_list,
-    [y_real, y_imag],
-    y_list,
-    [x_label, y_label, plot_title],
-) = CstResultParameters(
-    mws, parent_path=r"1D Results\S-Parameters", run_id=0, result_id=0
-)
+# (
+#     frequencies_list,
+#     [y_real, y_imag],
+#     y_list,
+#     [x_label, y_label, plot_title],
+# ) = CstResultParameters(
+#     mws, parent_path=r"1D Results\S-Parameters", run_id=0, result_id=0
+# )
 
-plt.figure(dpi=200)
-plt.plot(frequencies_list, y_real)
-plt.plot(frequencies_list, y_imag)
-plt.xlabel(x_label)
-plt.ylabel(y_label)
-plt.title(plot_title)
-plt.show()
+# plt.figure(dpi=200)
+# plt.plot(frequencies_list, y_real)
+# plt.plot(frequencies_list, y_imag)
+# plt.xlabel(x_label)
+# plt.ylabel(y_label)
+# plt.title(plot_title)
+# plt.show()
 
-plt.figure(dpi=200)
-plt.plot(frequencies_list, y_list)
-plt.xlabel(x_label)
-plt.ylabel(y_label)
-plt.title(plot_title)
-plt.show()
+# plt.figure(dpi=200)
+# plt.plot(frequencies_list, y_list)
+# plt.xlabel(x_label)
+# plt.ylabel(y_label)
+# plt.title(plot_title)
+# plt.show()
 
 
-export_file_path = "C:\\Users\\PointM2001\\Documents\\demo\\DRW.txt"
-CstExportTouchstone(mws, export_file_path)
+# export_file_path = "C:\\Users\\PointM2001\\Documents\\demo\\DRW.txt"
+# CstExportTouchstone(mws, export_file_path)
 
 
 # cst.Quit()
