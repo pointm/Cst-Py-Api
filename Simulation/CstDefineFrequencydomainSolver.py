@@ -6,7 +6,7 @@ def CstDefineFrequencydomainSolver(mws, startFreq, endFreq, samples):
 
     mesh.SetCreator('High Frequency')
 
-    fdSolver.Reset()
+    fdSolver.Reset
     fdSolver.SetMethod('Tetrahedral', 'General purpose')
     fdSolver.OrderTet('Second')
     fdSolver.OrderSrf('First')
@@ -70,7 +70,7 @@ def CstDefineFrequencydomainSolver(mws, startFreq, endFreq, samples):
     fdSolver.SweepWeightEvanescent('1.0')
     fdSolver.AccuracyROM('1e-4')
     fdSolver.AddSampleInterval('', '', '1', 'Automatic', 'True')
-    fdSolver.AddSampleInterval(str(startFreq), str(endFreq), samples, 'Automatic', 'False')
+    fdSolver.AddSampleInterval(str(startFreq), str(endFreq), str(samples), 'Automatic', 'False')
     fdSolver.MPIParallelization('False')
     fdSolver.UseDistributedComputing('False')
     fdSolver.NetworkComputingStrategy('RunRemote')
@@ -79,7 +79,7 @@ def CstDefineFrequencydomainSolver(mws, startFreq, endFreq, samples):
     fdSolver.MaxCPUs('96')
     fdSolver.MaximumNumberOfCPUDevices('2')
 
-    ieSolver.Reset()
+    ieSolver.Reset
     ieSolver.UseFastFrequencySweep('True')
     ieSolver.UseIEGroundPlane('False')
     ieSolver.CalcFarFieldInRealGround('False')
@@ -107,4 +107,4 @@ def CstDefineFrequencydomainSolver(mws, startFreq, endFreq, samples):
     ieSolver.FrequencySamplesCMA('0')
     ieSolver.SetMemSettingCMA('Auto')
 
-    fdSolver.Start()
+    fdSolver.Start

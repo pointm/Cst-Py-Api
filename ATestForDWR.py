@@ -92,17 +92,7 @@ CstDefineBackroundMaterial(
     mws, XminSpace, XmaxSpace, YminSpace, YmaxSpace, ZminSpace, ZmaxSpace
 )
 background = mws.Background
-background.Type("PEC")
-
-W = 28.45
-L = 28.45
-Fi = 9
-Wf = 1.137
-Gpf = 1
-Lg = 2 * L
-Wg = 2 * W
-Ht = 0.035
-Hs = 1.6
+background.Type("PEC")  # 设置背景为PEC
 
 a = 20
 b = 10
@@ -110,7 +100,6 @@ l = 0.8 * a
 
 Name = "WaveGuide"
 component = "component2"
-# material = 'Copper (annealed)'
 material = "Vacuum"
 Xrange = [-0.5 * a, 0.5 * a]
 Yrange = [-0.5 * b, 0.5 * b]
@@ -167,17 +156,17 @@ WaveGuidePort(
     Coordinates,
     Orientation,
 )
-CstDefineEfieldMonitor(mws, ("e-field" + "10"),10)
+CstDefineEfieldMonitor(mws, ("e-field" + "10"), 10)
 CstDefineHfieldMonitor(mws, ("h-field" + "10"), 10)
 
 
-CstSaveAsProject(mws, "C:\\demo\\demo_result\\MicrostripAntenna")
+CstSaveAsProject(mws, "C:\\Users\\PointM2001\\Documents\\demo\\demo_result\\MicrostripAntenna")
 
 
-CstDefineFrequencydomainSolver(mws, 5, 12, samples = '')
+CstDefineFrequencydomainSolver(mws, 5, 12, "")
 
 
 # export_file_path = "C:\\demo\\microstrip_demo.txt"
 # CstExportTouchstone(mws, export_file_path)
 
-# cst.Quit()
+cst.Quit()
