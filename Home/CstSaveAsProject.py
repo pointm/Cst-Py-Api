@@ -1,2 +1,3 @@
 def CstSaveAsProject(mws, projectName):
-    mws.SaveAs(projectName, True)
+    mws._FlagAsMethod("SaveAs")
+    mws.SaveAs(projectName + '.cst', 'false')

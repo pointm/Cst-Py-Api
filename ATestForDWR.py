@@ -129,14 +129,14 @@ def UpdateMesh(mws):
     meshsettings.SetMeshType("Tet")
     meshsettings.Set("Version", 1)
     # 'MAX CELL - WAVELENGTH REFINEMENT
-    meshsettings.Set("StepsPerWaveNear", "17")
-    meshsettings.Set("StepsPerWaveFar", "11")
+    meshsettings.Set("StepsPerWaveNear", "15")
+    meshsettings.Set("StepsPerWaveFar", "8")
     meshsettings.Set("PhaseErrorNear", "0.02")
     meshsettings.Set("PhaseErrorFar", "0.02")
     meshsettings.Set("CellsPerWavelengthPolicy", "cellsperwavelength")
     # 'MAX CELL - GEOMETRY REFINEMENT
-    meshsettings.Set("StepsPerBoxNear", "17")
-    meshsettings.Set("StepsPerBoxFar", "11")
+    meshsettings.Set("StepsPerBoxNear", "15")
+    meshsettings.Set("StepsPerBoxFar", "8")
     meshsettings.Set("ModelBoxDescrNear", "maxedge")
     meshsettings.Set("ModelBoxDescrFar", "maxedge")
     # 'MIN CELL
@@ -179,15 +179,32 @@ def UpdateMesh(mws):
 
     mesh.Update
 
+def invoke_com_method(com_object, method_name, *args):
+    try:
+        method = getattr(com_object, method_name)
+        result = method(*args)
+        return result
+    except Exception as e:
+        print(f"Error invoking method '{method_name}': {e}")
+
+
 
 f_min = 5
 f_max = 12
 
 cst = win32com.client.dynamic.Dispatch("CSTStudio.Application")
+# 调用COM对象的方法
+result = invoke_com_method(cst, "GetApplicationName")
+
+# 处理返回结果
+print(result)
 cst.SetQuietMode(True)
 new_mws = cst.NewMWS()
 # new_mws = cst.OpenFile(r"C:\Users\PointM2001\Documents\Demo\RWtest.cst")
 mws = cst.Active3D()
+
+
+
 
 CstDefaultUnits(mws)
 
@@ -217,6 +234,11 @@ background = mws.Background
 background.Type("PEC")  # 直接设置背景为PEC，现阶段仿真暂时不需要那么精确的背景材料
 
 CstSapphire(mws)  # 创建蓝宝石材料
+
+# project = mws.Project
+# project.SaveAs("C:\\Users\\PointM2001\\Documents\\Demo\\test1.cst", False)
+
+
 
 a = 20
 b = 10
@@ -250,16 +272,6 @@ Cstcylinder(
     Zrange,
 )
 
-# pickname = "SapphireWindow"
-# pickcomponent = "Window"
-
-# pick = mws.Pick
-
-# pick.PickCenterpointFromId(pickname + ":" + pickcomponent, "3")
-
-# x = pick.GetPickpointCoordinatesCompByIndex(0,0)
-# y = pick.GetPickpointCoordinatesCompByIndex(0,1)
-# z = pick.GetPickpointCoordinatesCompByIndex(0,2)#得到Pick的点的坐标
 wcs = mws.WCS
 x = 0
 y = 0
@@ -378,7 +390,7 @@ WaveGuidePort(
 # CstDefineHfieldMonitor(mws, ("h-field" + "10"), 10)
 
 
-mws.SaveAs("C:\\Users\\PointM2001\\Documents\\Demo\\test.cst", True)
+# new_mws.SaveAs("C:\\Users\\PointM2001\\Documents\\Demo\\test1.cst", False)
 
 UpdateMesh(mws)
 CstDefineFrequencydomainSolver(mws, f_min, f_max, "")
