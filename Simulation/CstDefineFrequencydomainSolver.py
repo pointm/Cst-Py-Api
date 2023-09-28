@@ -12,7 +12,7 @@ def CstDefineFrequencydomainSolver(mws, startFreq, endFreq, samples):
     fdSolver.OrderSrf('First')
     fdSolver.Stimulation("All", "All")
     fdSolver.ResetExcitationList()
-    fdSolver.AutoNormImpedance('True')
+    fdSolver.AutoNormImpedance('False')
     fdSolver.NormingImpedance('50')
     fdSolver.ModesOnly('False')
     fdSolver.ConsiderPortLossesTet('True')

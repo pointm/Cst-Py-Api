@@ -119,6 +119,67 @@ def MirrorTransform(mws, transcomponent, transName):
     trans.Transform("Shape", "Mirror")
 
 
+def UpdateMesh(mws):
+    mesh = mws.Mesh
+    meshsettings = mws.MeshSettings
+
+    mesh.MeshType("Tetrahedral")
+    mesh.SetCreator("High Frequency")
+
+    meshsettings.SetMeshType("Tet")
+    meshsettings.Set("Version", 1)
+    # 'MAX CELL - WAVELENGTH REFINEMENT
+    meshsettings.Set("StepsPerWaveNear", "17")
+    meshsettings.Set("StepsPerWaveFar", "11")
+    meshsettings.Set("PhaseErrorNear", "0.02")
+    meshsettings.Set("PhaseErrorFar", "0.02")
+    meshsettings.Set("CellsPerWavelengthPolicy", "cellsperwavelength")
+    # 'MAX CELL - GEOMETRY REFINEMENT
+    meshsettings.Set("StepsPerBoxNear", "17")
+    meshsettings.Set("StepsPerBoxFar", "11")
+    meshsettings.Set("ModelBoxDescrNear", "maxedge")
+    meshsettings.Set("ModelBoxDescrFar", "maxedge")
+    # 'MIN CELL
+    meshsettings.Set("UseRatioLimit", "0")
+    meshsettings.Set("RatioLimit", "100")
+    meshsettings.Set("MinStep", "0")
+    # 'MESHING METHOD
+    meshsettings.SetMeshType("Unstr")
+    meshsettings.Set("Method", "0")
+
+    meshsettings.SetMeshType("Tet")
+    meshsettings.Set("CurvatureOrder", "1")
+    meshsettings.Set("CurvatureOrderPolicy", "automatic")
+    meshsettings.Set("CurvRefinementControl", "NormalTolerance")
+    meshsettings.Set("NormalTolerance", "22.5")
+    meshsettings.Set("SrfMeshGradation", "1.5")
+    meshsettings.Set("SrfMeshOptimization", "1")
+
+    meshsettings.SetMeshType("Unstr")
+    meshsettings.Set("UseMaterials", "1")
+    meshsettings.Set("MoveMesh", "0")
+
+    meshsettings.SetMeshType("All")
+    meshsettings.Set("AutomaticEdgeRefinement", "0")
+
+    meshsettings.SetMeshType("Tet")
+    meshsettings.Set("UseAnisoCurveRefinement", "1")
+    meshsettings.Set("UseSameSrfAndVolMeshGradation", "1")
+    meshsettings.Set("VolMeshGradation", "1.5")
+    meshsettings.Set("VolMeshOptimization", "1")
+
+    meshsettings.SetMeshType("Unstr")
+    meshsettings.Set("SmallFeatureSize", "0")
+    meshsettings.Set("CoincidenceTolerance", "1e-06")
+    meshsettings.Set("SelfIntersectionCheck", "1")
+    meshsettings.Set("OptimizeForPlanarStructures", "0")
+
+    mesh.SetParallelMesherMode("Tet", "maximum")
+    mesh.SetMaxParallelMesherThreads("Tet", "1")
+
+    mesh.Update
+
+
 f_min = 5
 f_max = 12
 
@@ -161,12 +222,13 @@ a = 20
 b = 10
 d = 5
 s = 4
-l = 0.5 * a
-wr = 10.416280006373
-wt = 0.82571683678682
-trh = 1.8211100106159
-ta = 15.851788528404
-tb = 10.274481884981
+wr = 10.987247233334
+L = 0.3 * a
+wt = 0.87928459706468
+trh = 1.8512664671501
+ta = 15.83559084768
+tb = 10.324854504076
+
 
 windowcomponent = "Window"
 windowname = "SapphireWindow"
@@ -224,7 +286,7 @@ component = "WaveGuide"
 material = "Vacuum"
 Xrange = [-0.5 * a, 0.5 * a]
 Yrange = [-0.5 * b, 0.5 * b]
-Zrange = [0, l]
+Zrange = [0, L]
 Cstbrick(mws, Name, component, material, Xrange, Yrange, Zrange)
 
 Name = "CutOffSpace"
@@ -232,7 +294,7 @@ component = "WaveGuide"
 material = "Vacuum"
 Xrange = [-0.5 * s, 0.5 * s]
 Yrange = [0.5 * d, 0.5 * b]
-Zrange = [0, l]
+Zrange = [0, L]
 Cstbrick(mws, Name, component, material, Xrange, Yrange, Zrange)
 
 Name = "CutOffSpace2"
@@ -240,7 +302,7 @@ component = "WaveGuide"
 material = "Vacuum"
 Xrange = [-0.5 * s, 0.5 * s]
 Yrange = [-0.5 * b, -0.5 * d]
-Zrange = [0, l]
+Zrange = [0, L]
 Cstbrick(mws, Name, component, material, Xrange, Yrange, Zrange)
 
 component1 = "WaveGuide:DRWWaveGuide"
@@ -268,7 +330,7 @@ CstPickFace(mws, pickname, pickcomponent, id=21)
 PortNumber = 1
 Xrange = [-0.5 * a, 0.5 * a]
 Yrange = [-0.5 * b, 0.5 * b]
-Zrange = [l + wt / 2 + trh, l + wt / 2 + trh]
+Zrange = [L + wt / 2 + trh, L + wt / 2 + trh]
 XrangeAdd = [0, 0]
 YrangeAdd = [0, 0]
 ZrangeAdd = [0, 0]
@@ -294,7 +356,7 @@ CstPickFace(mws, pickname, pickcomponent, id=21)
 PortNumber = 2
 Xrange = [-0.5 * a, 0.5 * a]
 Yrange = [-0.5 * b, 0.5 * b]
-Zrange = [-(l + wt / 2 + trh), -(l + wt / 2 + trh)]
+Zrange = [-(L + wt / 2 + trh), -(L + wt / 2 + trh)]
 XrangeAdd = [0, 0]
 YrangeAdd = [0, 0]
 ZrangeAdd = [0, 0]
@@ -318,7 +380,7 @@ WaveGuidePort(
 
 mws.SaveAs("C:\\Users\\PointM2001\\Documents\\Demo\\test.cst", True)
 
-
+UpdateMesh(mws)
 CstDefineFrequencydomainSolver(mws, f_min, f_max, "")
 
 (
