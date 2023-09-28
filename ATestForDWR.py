@@ -9,6 +9,7 @@ from Home.CstQuitProject import *
 from Materials.CstCopperAnnealedLossy import *
 from Materials.CstFR4lossy import *
 from Modeling.Cstbrick import *
+from Modeling.Cstcylinder import *
 from Modeling.CstSubtract import *
 from Modeling.CstAdd import *
 from Modeling.CstPickFace import *
@@ -22,6 +23,45 @@ from Simulation.CstDefineFarfieldMonitor import *
 from Simulation.CstDefineTimedomainSolver import *
 from PostProcessing.CstResultParameters import *
 from PostProcessing.CstExportTouchstone import *
+
+
+def CstSapphire(mws):
+    material = mws.Material
+
+    material.Reset()
+    material.Name("Sapphire")
+    material.FrqType("all")
+    material.Type("Normal")
+    material.MaterialUnit("Frequency", "GHz")
+    material.MaterialUnit("Geometry", "mm")
+    material.Epsilon("9.4")
+    material.Mu("1.0")
+    material.Kappa("0.0")
+    material.TanD("0.0")
+    material.TanDFreq("0.0")
+    material.TanDGiven("False")
+    material.TanDModel("ConstKappa")
+    material.KappaM("0")
+    material.TanDM("0.0")
+    material.TanDMFreq("0.0")
+    material.TanDMGiven("False")
+    material.TanDMModel("ConstKappa")
+    material.DispModelEps("None")
+    material.DispModelMu("None")
+    material.DispersiveFittingSchemeEps("General 1st")
+    material.DispersiveFittingSchemeMu("General 1st")
+    material.UseGeneralDispersionEps("False")
+    material.UseGeneralDispersionMu("False")
+    material.Rho("0")
+    material.ThermalType("Normal")
+    material.ThermalConductivity("0")
+    material.HeatCapacity("0")
+    material.SetActiveMaterial("all")
+    material.Colour("0", "0.717647", "1")
+    material.Wireframe("False")
+    material.Transparency("0")
+    material.Create()
+    format(material)
 
 
 def WaveGuidePort(
@@ -62,6 +102,23 @@ def WaveGuidePort(
     port.Create()
 
 
+def MirrorTransform(mws, transcomponent, transName):
+    trans = mws.Transform
+    trans.Reset
+    trans.Name(transcomponent + ":" + transName)
+    trans.Origin("Free")
+    trans.Center("0", "0", "0")
+    trans.PlaneNormal("0", "0", "-1")
+    trans.MultipleObjects("True")
+    trans.GroupObjects("False")
+    trans.Repetitions("1")
+    trans.MultipleSelection("False")
+    trans.Destination("")
+    trans.Material("")
+    trans.AutoDestination("True")
+    trans.Transform("Shape", "Mirror")
+
+
 f_min = 5
 f_max = 12
 
@@ -86,34 +143,88 @@ Zmax = "electric"
 minfrequency = 1.5
 CstDefineOpenBoundary(mws, minfrequency, Xmin, Xmax, Ymin, Ymax, Zmin, Zmax)
 
-XminSpace = 0
-XmaxSpace = 0
-YminSpace = 0
-YmaxSpace = 0
-ZminSpace = 0
-ZmaxSpace = 0
-CstDefineBackroundMaterial(
-    mws, XminSpace, XmaxSpace, YminSpace, YmaxSpace, ZminSpace, ZmaxSpace
-)
+# XminSpace = 0
+# XmaxSpace = 0
+# YminSpace = 0
+# YmaxSpace = 0
+# ZminSpace = 0
+# ZmaxSpace = 0
+# CstDefineBackroundMaterial(
+#     mws, XminSpace, XmaxSpace, YminSpace, YmaxSpace, ZminSpace, ZmaxSpace
+# )
 background = mws.Background
-background.Type("PEC")  # 设置背景为PEC
+background.Type("PEC")  # 直接设置背景为PEC，现阶段仿真暂时不需要那么精确的背景材料
 
-project = mws.Project
-
+CstSapphire(mws)  # 创建蓝宝石材料
 
 a = 20
 b = 10
 d = 5
 s = 4
-l = 0.6 * a
+l = 0.5 * a
+wr = 10.416280006373
+wt = 0.82571683678682
+trh = 1.8211100106159
+ta = 15.851788528404
+tb = 10.274481884981
 
+windowcomponent = "Window"
+windowname = "SapphireWindow"
+windowmaterial = "Sapphire"
+windowaxis = "Z"
+Xcenter = 0
+Ycenter = 0
+Zrange = [-wt / 2, wt / 2]
+Cstcylinder(
+    mws,
+    windowname,
+    windowcomponent,
+    windowmaterial,
+    windowaxis,
+    wr,
+    0,
+    Xcenter,
+    Ycenter,
+    Zrange,
+)
+
+# pickname = "SapphireWindow"
+# pickcomponent = "Window"
+
+# pick = mws.Pick
+
+# pick.PickCenterpointFromId(pickname + ":" + pickcomponent, "3")
+
+# x = pick.GetPickpointCoordinatesCompByIndex(0,0)
+# y = pick.GetPickpointCoordinatesCompByIndex(0,1)
+# z = pick.GetPickpointCoordinatesCompByIndex(0,2)#得到Pick的点的坐标
+wcs = mws.WCS
+x = 0
+y = 0
+z = wt / 2  # 得到局部WCS坐标系要移动到的点的坐标
+wcs.SetOrigin(x, y, z)  # 激活局部坐标
+wcs.ActivateWCS("local")
+
+Name = "RW"
+component = "TransWaveGuide"
+material = "Vacuum"
+Xrange = [-0.5 * ta, 0.5 * ta]
+Yrange = [-0.5 * tb, 0.5 * tb]
+Zrange = [0, trh]
+Cstbrick(mws, Name, component, material, Xrange, Yrange, Zrange)
+
+x = 0
+y = 0
+z = wt / 2 + trh  # 得到局部WCS坐标系要移动到的点的坐标
+wcs.SetOrigin(x, y, z)  # 激活局部坐标
+wcs.ActivateWCS("local")
 
 Name = "DRWWaveGuide"
 component = "WaveGuide"
 material = "Vacuum"
 Xrange = [-0.5 * a, 0.5 * a]
 Yrange = [-0.5 * b, 0.5 * b]
-Zrange = [-0.5 * l, 0.5 * l]
+Zrange = [0, l]
 Cstbrick(mws, Name, component, material, Xrange, Yrange, Zrange)
 
 Name = "CutOffSpace"
@@ -121,7 +232,7 @@ component = "WaveGuide"
 material = "Vacuum"
 Xrange = [-0.5 * s, 0.5 * s]
 Yrange = [0.5 * d, 0.5 * b]
-Zrange = [-0.5 * l, 0.5 * l]
+Zrange = [0, l]
 Cstbrick(mws, Name, component, material, Xrange, Yrange, Zrange)
 
 Name = "CutOffSpace2"
@@ -129,7 +240,7 @@ component = "WaveGuide"
 material = "Vacuum"
 Xrange = [-0.5 * s, 0.5 * s]
 Yrange = [-0.5 * b, -0.5 * d]
-Zrange = [-0.5 * l, 0.5 * l]
+Zrange = [0, l]
 Cstbrick(mws, Name, component, material, Xrange, Yrange, Zrange)
 
 component1 = "WaveGuide:DRWWaveGuide"
@@ -140,13 +251,24 @@ component1 = "WaveGuide:DRWWaveGuide"
 component2 = "WaveGuide:CutOffSpace2"
 CstSubtract(mws, component1, component2)
 
-Name = "DRWWaveGuide"
-CstPickFace(mws, Name, component, id=21)
+wcs.ActivateWCS("global")
+
+transcomponent = "TransWaveGuide"
+transname = "RW"
+MirrorTransform(mws, transcomponent, transname)
+
+transcomponent = "WaveGuide"
+transname = "DRWWaveGuide"
+MirrorTransform(mws, transcomponent, transname)
+
+pickname = "DRWWaveGuide"
+pickcomponent = "WaveGuide"
+CstPickFace(mws, pickname, pickcomponent, id=21)
 
 PortNumber = 1
 Xrange = [-0.5 * a, 0.5 * a]
 Yrange = [-0.5 * b, 0.5 * b]
-Zrange = [-0.5 * l, -0.5 * l]
+Zrange = [l + wt / 2 + trh, l + wt / 2 + trh]
 XrangeAdd = [0, 0]
 YrangeAdd = [0, 0]
 ZrangeAdd = [0, 0]
@@ -165,13 +287,14 @@ CstWaveguidePort(
     Orientation,
 )
 
-Name = "DRWWaveGuide"
-CstPickFace(mws, Name, component, id=14)
+pickname = "DRWWaveGuide_1"
+pickcomponent = "WaveGuide"
+CstPickFace(mws, pickname, pickcomponent, id=21)
 
 PortNumber = 2
 Xrange = [-0.5 * a, 0.5 * a]
 Yrange = [-0.5 * b, 0.5 * b]
-Zrange = [0.5 * l, 0.5 * l]
+Zrange = [-(l + wt / 2 + trh), -(l + wt / 2 + trh)]
 XrangeAdd = [0, 0]
 YrangeAdd = [0, 0]
 ZrangeAdd = [0, 0]
@@ -193,38 +316,38 @@ WaveGuidePort(
 # CstDefineHfieldMonitor(mws, ("h-field" + "10"), 10)
 
 
-CstSaveAsProject(mws, "RW")
+mws.SaveAs("C:\\Users\\PointM2001\\Documents\\Demo\\test.cst", True)
 
 
-# CstDefineFrequencydomainSolver(mws, f_min, f_max, "")
+CstDefineFrequencydomainSolver(mws, f_min, f_max, "")
 
-# (
-#     frequencies_list,
-#     [y_real, y_imag],
-#     y_list,
-#     [x_label, y_label, plot_title],
-# ) = CstResultParameters(
-#     mws, parent_path=r"1D Results\S-Parameters", run_id=0, result_id=0
-# )
+(
+    frequencies_list,
+    [y_real, y_imag],
+    y_list,
+    [x_label, y_label, plot_title],
+) = CstResultParameters(
+    mws, parent_path=r"1D Results\S-Parameters", run_id=0, result_id=0
+)
 
-# plt.figure(dpi=200)
-# plt.plot(frequencies_list, y_real)
-# plt.plot(frequencies_list, y_imag)
-# plt.xlabel(x_label)
-# plt.ylabel(y_label)
-# plt.title(plot_title)
-# plt.show()
+plt.figure(dpi=200)
+plt.plot(frequencies_list, y_real)
+plt.plot(frequencies_list, y_imag)
+plt.xlabel(x_label)
+plt.ylabel(y_label)
+plt.title(plot_title)
+plt.show()
 
-# plt.figure(dpi=200)
-# plt.plot(frequencies_list, y_list)
-# plt.xlabel(x_label)
-# plt.ylabel(y_label)
-# plt.title(plot_title)
-# plt.show()
+plt.figure(dpi=200)
+plt.plot(frequencies_list, y_list)
+plt.xlabel(x_label)
+plt.ylabel(y_label)
+plt.title(plot_title)
+plt.show()
 
 
-# export_file_path = "C:\\Users\\PointM2001\\Documents\\demo\\DRW.txt"
-# CstExportTouchstone(mws, export_file_path)
+export_file_path = "C:\\Users\\PointM2001\\Documents\\demo\\DWRWindow.txt"
+CstExportTouchstone(mws, export_file_path)
 
 
 # cst.Quit()
