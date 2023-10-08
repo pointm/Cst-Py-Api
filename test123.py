@@ -146,14 +146,14 @@ CstWaveguidePort(
 CstDefineFrequencydomainSolver(mws, f_min, f_max, "")
 
 
-dsp = mws.ParameterSweep
-dsp.SetSimulationType("parameter sweep")
+# dsp = mws.ParameterSweep
+# dsp.SetSimulationType("parameter sweep")
 
-dsp.AddSequence("Sweep")
+# dsp.AddSequence("Sweep")
 
-dsp.AddParameter_Samples("Sweep", "a", 5, 20, 5, False)
+# dsp.AddParameter_Samples("Sweep", "a", 5, 20, 5, False)
 
-dsp.Start
+# dsp.Start
 
 # CstSaveAsProject(mws, r"C:\Users\PointM2001\Documents\Demo\RWtest")
 
