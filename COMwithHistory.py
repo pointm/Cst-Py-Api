@@ -249,6 +249,22 @@ def FreqSimulation(mws):
     mws.AddToHistory(Tag, Command)
 
 
+def ParaSweep(mws):
+    sCommand = '''
+	With ParameterSweep
+        .SetSimulationType ("Frequency")
+        .AddSequence ("Sweep")
+        .AddParameter_Samples ("Sweep", "a", 2, 10, 3, False)
+        .Start
+    End With
+'''
+    psp = mws.ParameterSweep
+    psp.SetSimulationType("Frequency")
+    psp.AddSequence("Sweep")
+    psp.AddParameter_Samples("Sweep", "a", 2, 10, 3, False)
+    psp.Start
+
+
 Frq = [5, 7]  # 工作频率，单位：GHz
 
 
@@ -302,4 +318,7 @@ PickPort1(mws)
 PickPort2(mws)
 
 # 开始仿真
-FreqSimulation(mws)
+# FreqSimulation(mws)
+
+# 开始扫参
+ParaSweep(mws)
