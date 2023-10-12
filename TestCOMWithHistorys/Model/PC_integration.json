@@ -8,6 +8,11 @@
          "name": "a",
          "type": "float",
          "value": 20.0
+      },
+      {
+         "name": "b",
+         "type": "float",
+         "value": 15.0
       }
    ],
    "outputVariables": []

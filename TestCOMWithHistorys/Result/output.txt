@@ -4,6 +4,10 @@ ________________________________________________________________________________
 _______________________________________________________________________________________________________________________
 
 _______________________________________________________________________________________________________________________
-QUESTION:
-Do you want to save changes to 'TestCOMWithHistorys.cst'?
-Auto answered with "Yes"
+ERROR:
+History update failed for command (Step 5):
+ChangeSolverType 'HF Frequency Domain'
+>>> Error text: (10097) ActiveX Automation: wrong number of parameters.
+(ChangeSolverType 'HF Frequency Domain')
+
+

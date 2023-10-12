@@ -1,5 +1,5 @@
 MWS Result File Version 20150206
-size=i:2
+size=i:3
 
 type=s:FOLDER
 problemclass=s::8:1000
@@ -18,4 +18,14 @@ lifetime=s:persistent
 result=s:0
 treepath=s:Excitation Signals\default
 files=s:signal_default_lf.sig
+
+type=s:XYSIGNAL2
+subtype=s:user
+problemclass=s::0:0
+visibility=s:visible
+creation=s:internal
+lifetime=s:persistent
+result=s:0
+treepath=s:Excitation Signals\default
+files=s:signal_default.sig
 

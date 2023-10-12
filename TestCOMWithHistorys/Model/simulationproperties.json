@@ -1,10 +1,10 @@
 {
     "active_solver": "HF Time Domain",
     "frequency": {
-        "maximum": 0.0,
-        "maximum_expr": "0.0",
-        "minimum": 0.0,
-        "minimum_expr": "0.0",
+        "maximum": 7.0,
+        "maximum_expr": "7.000000",
+        "minimum": 5.0,
+        "minimum_expr": "5.000000",
         "unit": "GHz"
     },
     "run_options": {
