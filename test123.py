@@ -16,9 +16,9 @@ def BuildComponentBrick(handle):
 
 
 cst = win32com.client.dynamic.Dispatch("CSTStudio.Application")
-# cst.SetQuietMode(True)
-# new_mws = cst.NewMWS()
-new_mws = cst.OpenFile(r"C:\Users\PointM2001\Documents\Demo\RWtest.cst")
+cst.SetQuietMode(True)
+new_mws = cst.NewMWS()
+# new_mws = cst.OpenFile(r"C:\Users\PointM2001\Documents\Demo\RWtest.cst")
 mws = cst.Active3D()
 
 f_min = 5
@@ -55,16 +55,36 @@ a = 20
 b = 10
 trh = 5
 
+mws._FlagAsMethod("AddToHistory")
+mws.AddToHistory(
+    'StoreParametera', 'StoreParameter("a", "%f")' % a)
+mws._FlagAsMethod("AddToHistory")
+mws.AddToHistory(
+    'StoreParameterb', 'StoreParameter("b", "%f")' % b)
+mws._FlagAsMethod("AddToHistory")
+mws.AddToHistory(
+    'StoreParametertrh', 'StoreParameter("trh", "%f")' % trh)
 
-mws._FlagAsMethod("StoreParameter")
-mws.StoreParameter("a", a)
-mws._FlagAsMethod("StoreParameter")
-mws.StoreParameter("b", b)
-mws._FlagAsMethod("StoreParameter")
-mws.StoreParameter("trh", trh)
-
+line_break = '\n'
 # BuildComponentBrick(mws)
-
+Str_Name = 'solid1'
+Str_Component = 'component1'
+Str_Material = 'Vacuum'
+# 以下这一串可以写成函数
+sCommand = ['With Brick',
+            '.Reset',
+            '.Name "%s"' % Str_Name,
+            '.Component "%s"' % Str_Component,
+            '.Material "%s"' % Str_Material,
+            '.Xrange "-a/2","a/2"',
+            '.Yrange "-b/2","b/2"',
+            '.Zrange "-trh/2","trh/2"',
+            '.Create',
+            'End With']
+sCommand = line_break.join(sCommand)
+mws._FlagAsMethod("AddToHistory")
+mws.AddToHistory('define brick:%s:%s' %
+                 (Str_Component, Str_Name,), sCommand)
 
 pickname = "solid1"
 pickcomponent = "component1"
@@ -119,16 +139,17 @@ WaveGuidePort(
 )
 
 
-# CstDefineFrequencydomainSolver(mws, f_min, f_max, "")
+CstDefineFrequencydomainSolver(mws, f_min, f_max, "")
 
 
 dsp = mws.ParameterSweep
 dsp.SetSimulationType("Frequency")
 
 dsp._FlagAsMethod("AddSequence")
+dsp.AddSequence('blayt')
 
-dsp.AddParameter_Samples("Sweep", "a", 5, 20, 3, False)
-# dsp.AddParameter_Samples("Sweep", "b", 2.5, 10, 3, False)
+dsp.AddParameter_Samples("blayt", "a", 5, 20, 3, False)
+# dsp.AddParameter_Samples("blayt", "b", 2.5, 10, 3, False)
 
 dsp.Start
 
