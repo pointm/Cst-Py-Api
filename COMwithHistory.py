@@ -245,6 +245,11 @@ def FreqSimulation(mws):
         .Start
     End With
     """
+    Command = '''
+    With FDSolver
+        .Start
+    End With
+    '''
     mws._FlagAsMethod("AddToHistory")
     mws.AddToHistory(Tag, Command)
 
@@ -318,9 +323,9 @@ PickPort1(mws)
 PickPort2(mws)
 
 # 开始仿真
-# FreqSimulation(mws)
+FreqSimulation(mws)
 
 # 开始扫参
-ParaSweep(mws)
+# ParaSweep(mws)
 
 #
