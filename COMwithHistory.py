@@ -133,14 +133,6 @@ def FreqSimulation(mws):
 
 
 def ParaSweep(mws):
-    sCommand = '''
-	With ParameterSweep
-        .SetSimulationType ("Frequency")
-        .AddSequence ("Sweep")
-        .AddParameter_Samples ("Sweep", "a", 2, 10, 3, False)
-        .Start
-    End With
-'''
     psp = mws.ParameterSweep
     psp.SetSimulationType("Frequency")
     psp.AddSequence("Sweep")
