@@ -1,163 +1,33 @@
-from extended import *
+a = 50
+b = 30
+Command = '''
+With Port
+    .Reset
+    .PortNumber 2
+    .Label  ""
+    .NumberOfModes 1
+    .AdjustPolarization "False"
+    .PolarizationAngle 0.0
+    .ReferencePlaneDistance 0
+    .TextSize 50
+    .TextMaxLimit 0
+    .Coordinates "Picks"
+    .Orientation "positive"
+    .PortOnBound "False"
+    .ClipPickedPortToBound "False"
+    '''
+Command = Command + '''
+    .Xrange "%s","%s"
+    .Yrange "%s","%s"
+    .Zrange "-l/2","-l/2"
+''' % ('alpha', 'alpha', 'beta', 'beta')
+Command = Command + '''
+    .XrangeAdd "0.0","0.0"
+    .YrangeAdd "0.0","0.0"
+    .ZrangeAdd "0.0","0.0"
+    .SingleEnded "False"
+    .Create
+End With
+'''
 
-
-def BuildComponentBrick(handle):
-    componentobj = handle.Component
-    brick = handle.Brick
-    componentobj.New("component1")
-    brick.Reset
-    brick.Name("solid1")
-    brick.Component("component1")
-    brick.Material("Vacuum")
-    brick.Xrange("-a/2", "a/2")
-    brick .Yrange("-b/2", "b/2")
-    brick.Zrange("-trh/2", "trh/2")
-    brick.Create
-
-
-cst = win32com.client.dynamic.Dispatch("CSTStudio.Application")
-cst.SetQuietMode(True)
-new_mws = cst.NewMWS()
-# new_mws = cst.OpenFile(r"C:\Users\PointM2001\Documents\Demo\RWtest.cst")
-mws = cst.Active3D()
-
-f_min = 5
-f_max = 12
-
-CstDefaultUnits(mws)
-
-CstDefineFrequencyRange(mws, f_min, f_max)
-
-CstMeshInitiator(mws)
-
-Xmin = "electric"
-Xmax = "electric"
-Ymin = "electric"
-Ymax = "electric"
-Zmin = "electric"
-Zmax = "electric"
-
-CstDefineOpenBoundary(mws, f_min, Xmin, Xmax, Ymin, Ymax, Zmin, Zmax)
-
-# XminSpace = 0
-# XmaxSpace = 0
-# YminSpace = 0
-# YmaxSpace = 0
-# ZminSpace = 0
-# ZmaxSpace = 0
-# CstDefineBackroundMaterial(
-#     mws, XminSpace, XmaxSpace, YminSpace, YmaxSpace, ZminSpace, ZmaxSpace
-# )
-background = mws.Background
-background.Type("PEC")  # 直接设置背景为PEC，现阶段仿真暂时不需要那么精确的背景材料
-
-a = 20
-b = 10
-trh = 5
-
-mws._FlagAsMethod("AddToHistory")
-mws.AddToHistory(
-    'StoreParametera', 'StoreParameter("a", "%f")' % a)
-mws._FlagAsMethod("AddToHistory")
-mws.AddToHistory(
-    'StoreParameterb', 'StoreParameter("b", "%f")' % b)
-mws._FlagAsMethod("AddToHistory")
-mws.AddToHistory(
-    'StoreParametertrh', 'StoreParameter("trh", "%f")' % trh)
-
-line_break = '\n'
-# BuildComponentBrick(mws)
-Str_Name = 'solid1'
-Str_Component = 'component1'
-Str_Material = 'Vacuum'
-# 以下这一串可以写成函数
-sCommand = ['With Brick',
-            '.Reset',
-            '.Name "%s"' % Str_Name,
-            '.Component "%s"' % Str_Component,
-            '.Material "%s"' % Str_Material,
-            '.Xrange "-a/2","a/2"',
-            '.Yrange "-b/2","b/2"',
-            '.Zrange "-trh/2","trh/2"',
-            '.Create',
-            'End With']
-sCommand = line_break.join(sCommand)
-mws._FlagAsMethod("AddToHistory")
-mws.AddToHistory('define brick:%s:%s' %
-                 (Str_Component, Str_Name,), sCommand)
-
-pickname = "solid1"
-pickcomponent = "component1"
-CstPickFace(mws, pickname, pickcomponent, id=2)
-
-PortNumber = 1
-Xrange = [-0.5 * a, 0.5 * a]
-Yrange = [-0.5 * b, 0.5 * b]
-Zrange = [-trh/2, -trh/2]
-XrangeAdd = [0, 0]
-YrangeAdd = [0, 0]
-ZrangeAdd = [0, 0]
-Coordinates = "Picks"
-Orientation = "positive"
-WaveGuidePort(
-    mws,
-    PortNumber,
-    Xrange,
-    Yrange,
-    Zrange,
-    XrangeAdd,
-    YrangeAdd,
-    ZrangeAdd,
-    Coordinates,
-    Orientation,
-)
-
-pickname = "solid1"
-pickcomponent = "component1"
-CstPickFace(mws, pickname, pickcomponent, id=1)
-
-PortNumber = 2
-Xrange = [-0.5 * a, 0.5 * a]
-Yrange = [-0.5 * b, 0.5 * b]
-Zrange = [trh/2, trh/2]
-XrangeAdd = [0, 0]
-YrangeAdd = [0, 0]
-ZrangeAdd = [0, 0]
-Coordinates = "Picks"
-Orientation = "positive"
-WaveGuidePort(
-    mws,
-    PortNumber,
-    Xrange,
-    Yrange,
-    Zrange,
-    XrangeAdd,
-    YrangeAdd,
-    ZrangeAdd,
-    Coordinates,
-    Orientation,
-)
-
-
-CstDefineFrequencydomainSolver(mws, f_min, f_max, "")
-
-
-dsp = mws.ParameterSweep
-dsp.SetSimulationType("Frequency")
-
-dsp._FlagAsMethod("AddSequence")
-dsp.AddSequence('blayt')
-
-dsp.AddParameter_Samples("blayt", "a", 5, 20, 3, False)
-# dsp.AddParameter_Samples("blayt", "b", 2.5, 10, 3, False)
-
-dsp.Start
-
-# # CstSaveAsProject(mws, r"C:\Users\PointM2001\Documents\Demo\RWtest")
-
-
-ver = mws.GetApplicationVersion
-print("Version:", ver)  # 打印版本号
-
-mu = mws.Mu0
-print(mu)
+print(Command)
